@@ -4,92 +4,3579 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Muqaddam | Cloud & DevOps Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
-        /* Professional CSS Reset & Styling */
+        /* ============================================
+           CSS VARIABLES & ROOT CONFIG
+           ============================================ */
         :root {
-            --primary: #232f3e; /* AWS Dark Blue */
-            --accent: #ff9900;  /* AWS Orange */
-            --text: #333;
-            --light: #f4f4f9;
+            --bg-primary: #030308;
+            --bg-secondary: #0a0a12;
+            --bg-tertiary: #111120;
+            --text-main: #f0f0f5;
+            --text-muted: #7a7f9a;
+            --text-subtle: #4a4f6a;
+            --accent: #ff9900;
+            --accent-light: #ffb347;
+            --accent-dark: #cc7a00;
+            --accent-glow: rgba(255, 153, 0, 0.15);
+            --accent-glow-strong: rgba(255, 153, 0, 0.35);
+            --card-bg: rgba(12, 12, 20, 0.75);
+            --card-border: rgba(255, 153, 0, 0.12);
+            --card-border-hover: rgba(255, 153, 0, 0.4);
+            --glass-bg: rgba(10, 10, 18, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --gradient-1: linear-gradient(135deg, #ff9900, #ff6600);
+            --gradient-2: linear-gradient(135deg, #ff9900, #ffcc00);
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #ff9900 50%, #ffcc00 100%);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 40px rgba(255, 153, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        /* ============================================
+           GLOBAL RESET
+           ============================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-primary);
+        }
+
+        html::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        html::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        html::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.6;
+            font-family: var(--font-main);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            overflow-x: hidden;
+            cursor: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 2rem 1rem;
-            text-align: center;
-            border-bottom: 5px solid var(--accent);
+        a {
+            text-decoration: none;
+            color: inherit;
+            cursor: none;
+        }
+
+        button {
+            cursor: none;
+            border: none;
+            outline: none;
+            background: none;
+            font-family: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        /* ============================================
+           LOADING SCREEN
+           ============================================ */
+        .loader-wrapper {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .loader-wrapper.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: loaderFadeIn 0.6s ease forwards;
+        }
+
+        .loader-bar-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0;
+            animation: loaderFadeIn 0.6s ease 0.3s forwards;
+        }
+
+        .loader-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .loader-percentage {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            opacity: 0;
+            animation: loaderFadeIn 0.6s ease 0.5s forwards;
+        }
+
+        .loader-text {
+            font-size: 0.75rem;
+            color: var(--text-subtle);
+            margin-top: 0.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: loaderFadeIn 0.6s ease 0.7s forwards;
+        }
+
+        @keyframes loaderFadeIn {
+            to { opacity: 1; }
+        }
+
+        /* ============================================
+           CUSTOM CURSOR
+           ============================================ */
+        .cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width var(--transition-fast), height var(--transition-fast),
+                        background var(--transition-fast);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid rgba(255, 153, 0, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width var(--transition-smooth), height var(--transition-smooth),
+                        border-color var(--transition-smooth), background var(--transition-smooth);
+        }
+
+        .cursor-dot.hovering {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-light);
+        }
+
+        .cursor-ring.hovering {
+            width: 60px;
+            height: 60px;
+            border-color: var(--accent);
+            background: rgba(255, 153, 0, 0.05);
+        }
+
+        .cursor-dot.clicking {
+            width: 5px;
+            height: 5px;
+        }
+
+        .cursor-ring.clicking {
+            width: 30px;
+            height: 30px;
+            border-color: var(--accent-light);
+        }
+
+        /* ============================================
+           SCROLL PROGRESS BAR
+           ============================================ */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--gradient-1);
+            z-index: 9990;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* ============================================
+           NOISE OVERLAY
+           ============================================ */
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            pointer-events: none;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+        }
+
+        /* ============================================
+           CANVAS BACKGROUND
+           ============================================ */
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* ============================================
+           NAVIGATION BAR
+           ============================================ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 8000;
+            padding: 1.2rem 0;
+            transition: all var(--transition-smooth);
+        }
+
+        .navbar.scrolled {
+            padding: 0.8rem 0;
+            background: rgba(3, 3, 8, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .navbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        .nav-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform var(--transition-smooth);
+        }
+
+        .nav-logo:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-link {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: color var(--transition-fast);
+            position: relative;
+            padding: 4px 0;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-link::before {
+            content: attr(data-index);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-right: 4px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width var(--transition-smooth);
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            padding: 8px 20px;
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-cta::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent);
+            transform: translateY(100%);
+            transition: transform var(--transition-smooth);
+        }
+
+        .nav-cta span {
+            position: relative;
+            z-index: 1;
+            transition: color var(--transition-smooth);
+        }
+
+        .nav-cta:hover::before {
+            transform: translateY(0);
+        }
+
+        .nav-cta:hover span {
+            color: var(--bg-primary);
+        }
+
+        /* Mobile Menu Toggle */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 5px;
+            z-index: 8002;
+        }
+
+        .nav-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-main);
+            transition: all var(--transition-smooth);
+            transform-origin: center;
+        }
+
+        .nav-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .nav-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 8001;
+            background: rgba(3, 3, 8, 0.95);
+            backdrop-filter: blur(30px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-smooth);
+        }
+
+        .mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu a {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            transition: all var(--transition-smooth);
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        .mobile-menu.active a {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .mobile-menu a:hover {
+            color: var(--accent);
+        }
+
+        /* ============================================
+           SIDE ELEMENTS (Social Links & Email)
+           ============================================ */
+        .side-element {
+            position: fixed;
+            bottom: 0;
+            z-index: 7000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .side-element::after {
+            content: '';
+            width: 1px;
+            height: 90px;
+            background: var(--text-subtle);
+        }
+
+        .side-left {
+            left: 2rem;
+        }
+
+        .side-right {
+            right: 2rem;
+        }
+
+        .side-element a {
+            color: var(--text-muted);
+            transition: all var(--transition-smooth);
+            font-size: 1.1rem;
+        }
+
+        .side-element a:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .side-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: all var(--transition-smooth);
+        }
+
+        .side-email {
+            writing-mode: vertical-rl;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            transition: all var(--transition-smooth);
+        }
+
+        .side-email:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* ============================================
+           MAIN CONTENT WRAPPER
+           ============================================ */
+        .main-content {
+            position: relative;
+            z-index: 1;
         }
 
         .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }
 
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .container-wide {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        /* ============================================
+           REVEAL ANIMATIONS
+           ============================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+        .stagger-6 { transition-delay: 0.6s; }
+
+        /* ============================================
+           SECTION HEADERS
+           ============================================ */
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 30px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.15;
             margin-bottom: 1.5rem;
+            letter-spacing: -1px;
         }
 
-        .status-tag {
-            background: #d4edda;
-            color: #155724;
-            padding: 5px 10px;
-            border-radius: 20px;
+        .section-title .highlight {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-divider {
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            margin-bottom: 2rem;
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero-greeting {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 1.2s;
+        }
+
+        .hero-name {
+            font-size: clamp(3.5rem, 9vw, 6rem);
+            font-weight: 700;
+            line-height: 1.05;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 1.5s;
+        }
+
+        .hero-name .name-text {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .hero-tagline {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 1.8s;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 540px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 2.1s;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 2.4s;
+        }
+
+        .btn-primary {
+            padding: 14px 32px;
+            background: var(--gradient-1);
+            color: var(--bg-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ffcc00, #ff6600);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 153, 0, 0.3);
+        }
+
+        .btn-outline {
+            padding: 14px 32px;
+            border: 1px solid var(--card-border-hover);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-outline::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent-glow);
+            transform: translateX(-100%);
+            transition: transform var(--transition-smooth);
+        }
+
+        .btn-outline:hover::before {
+            transform: translateX(0);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-arrow {
+            transition: transform var(--transition-smooth);
+            font-size: 1.2rem;
+        }
+
+        .btn-primary:hover .btn-arrow,
+        .btn-outline:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        .hero-scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 3s;
+        }
+
+        .scroll-mouse {
+            width: 24px;
+            height: 38px;
+            border: 2px solid var(--text-subtle);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .scroll-mouse::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 2px;
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+
+        .scroll-text {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-subtle);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        @keyframes heroFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.3; }
+        }
+
+        /* Floating geometric shapes */
+        .hero-shapes {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border: 1px solid rgba(255, 153, 0, 0.1);
+            border-radius: 4px;
+            animation: floatShape 20s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 60px; height: 60px;
+            top: 15%; right: 15%;
+            animation-delay: 0s;
+            transform: rotate(45deg);
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 40px; height: 40px;
+            top: 60%; right: 25%;
+            animation-delay: -5s;
+            border-radius: 50%;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 80px; height: 80px;
+            top: 30%; right: 8%;
+            animation-delay: -10s;
+            transform: rotate(20deg);
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 30px; height: 30px;
+            top: 75%; right: 10%;
+            animation-delay: -15s;
+            border-radius: 50%;
+        }
+
+        .floating-shape:nth-child(5) {
+            width: 50px; height: 50px;
+            top: 45%; right: 35%;
+            animation-delay: -8s;
+            transform: rotate(60deg);
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            25% { transform: translateY(-30px) rotate(90deg); opacity: 0.6; }
+            50% { transform: translateY(-15px) rotate(180deg); opacity: 0.3; }
+            75% { transform: translateY(-40px) rotate(270deg); opacity: 0.5; }
+        }
+
+        /* ============================================
+           ABOUT SECTION
+           ============================================ */
+        #about {
+            position: relative;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .about-text p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+        }
+
+        .about-text p strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 153, 0, 0.05), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+        }
+
+        .stat-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-4px);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
             font-size: 0.8rem;
-            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        h2 { color: var(--primary); border-left: 4px solid var(--accent); padding-left: 10px; }
-        
-        footer { text-align: center; font-size: 0.9rem; color: #777; margin-top: 3rem; padding-bottom: 2rem; }
+        /* Skills Visualization */
+        .skills-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .skill-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem 1.5rem;
+            transition: all var(--transition-smooth);
+        }
+
+        .skill-item:hover {
+            border-color: var(--card-border-hover);
+            transform: translateX(5px);
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .skill-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .skill-percentage {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .skill-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .skill-fill.animated {
+            /* Width set via JS */
+        }
+
+        /* ============================================
+           EXPERIENCE SECTION
+           ============================================ */
+        #experience {
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 3rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -3rem;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: translateX(-5px);
+            box-shadow: 0 0 15px var(--accent-glow-strong);
+        }
+
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid rgba(255, 153, 0, 0.3);
+            border-radius: 50%;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            transition: all var(--transition-smooth);
+        }
+
+        .timeline-content:hover {
+            border-color: var(--card-border-hover);
+            transform: translateX(5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .timeline-date {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-company {
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .timeline-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .timeline-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        /* ============================================
+           PROJECTS SECTION
+           ============================================ */
+        #projects {
+            position: relative;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            transition: all var(--transition-smooth);
+            background: transparent;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .category-header {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin: 3rem 0 1.5rem 0;
+            padding-left: 18px;
+            border-left: 3px solid var(--accent);
+            font-weight: 600;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.8rem;
+            perspective: 1200px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            transform-style: preserve-3d;
+            transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+        }
+
+        .project-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-lg);
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 153, 0, 0.06), transparent 40%);
+            pointer-events: none;
+        }
+
+        .project-card:hover {
+            border-color: var(--card-border-hover);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-content {
+            transform: translateZ(25px);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .project-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(255, 153, 0, 0.2);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+            transform: translateZ(35px);
+            transition: all var(--transition-smooth);
+        }
+
+        .project-card:hover .project-icon {
+            background: rgba(255, 153, 0, 0.15);
+            border-color: rgba(255, 153, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.15);
+        }
+
+        .project-card h3 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 0.8rem;
+            transform: translateZ(30px);
+            transition: color var(--transition-smooth);
+        }
+
+        .project-card:hover h3 {
+            color: var(--accent);
+        }
+
+        .project-card p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            transform: translateZ(15px);
+            flex-grow: 1;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            transform: translateZ(25px);
+            margin-top: auto;
+        }
+
+        .tech-tag {
+            background: rgba(255, 153, 0, 0.08);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            border: 1px solid rgba(255, 153, 0, 0.15);
+            transition: all var(--transition-smooth);
+        }
+
+        .tech-tag:hover {
+            background: rgba(255, 153, 0, 0.15);
+            border-color: rgba(255, 153, 0, 0.4);
+        }
+
+        .project-link {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: var(--text-muted);
+            transition: all var(--transition-smooth);
+            font-size: 1rem;
+            z-index: 2;
+        }
+
+        .project-link:hover {
+            color: var(--accent);
+            background: var(--accent-glow);
+            transform: translate(3px, -3px);
+        }
+
+        /* ============================================
+           CERTIFICATIONS SECTION
+           ============================================ */
+        #certifications {
+            position: relative;
+        }
+
+        .certs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cert-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            text-align: center;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cert-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform var(--transition-smooth);
+        }
+
+        .cert-card:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .cert-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .cert-badge {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.2rem;
+            background: var(--accent-glow);
+            border: 1px solid rgba(255, 153, 0, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all var(--transition-smooth);
+        }
+
+        .cert-card:hover .cert-badge {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 153, 0, 0.2);
+            border-color: var(--accent);
+        }
+
+        .cert-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+        }
+
+        .cert-issuer {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+
+        /* ============================================
+           TOOLS/TECH SECTION
+           ============================================ */
+        #tools {
+            position: relative;
+        }
+
+        .tools-marquee-wrapper {
+            overflow: hidden;
+            padding: 2rem 0;
+            position: relative;
+        }
+
+        .tools-marquee-wrapper::before,
+        .tools-marquee-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100px;
+            z-index: 2;
+        }
+
+        .tools-marquee-wrapper::before {
+            left: 0;
+            background: linear-gradient(to right, var(--bg-primary), transparent);
+        }
+
+        .tools-marquee-wrapper::after {
+            right: 0;
+            background: linear-gradient(to left, var(--bg-primary), transparent);
+        }
+
+        .tools-marquee {
+            display: flex;
+            gap: 2rem;
+            animation: marqueeScroll 30s linear infinite;
+            width: max-content;
+        }
+
+        .tools-marquee:hover {
+            animation-play-state: paused;
+        }
+
+        .tool-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            white-space: nowrap;
+            transition: all var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .tool-item:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-3px);
+        }
+
+        .tool-icon {
+            font-size: 1.5rem;
+        }
+
+        .tool-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ============================================
+           CONTACT SECTION
+           ============================================ */
+        #contact {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .contact-wrapper {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .contact-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .contact-description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 3rem;
+        }
+
+        .contact-btn {
+            padding: 16px 40px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            font-family: var(--font-mono);
+        }
+
+        .contact-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform var(--transition-smooth);
+        }
+
+        .contact-btn:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .contact-btn span {
+            position: relative;
+            z-index: 1;
+            transition: color var(--transition-smooth);
+        }
+
+        .contact-btn:hover span {
+            color: var(--bg-primary);
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .contact-link-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            transition: all var(--transition-smooth);
+            font-size: 0.85rem;
+        }
+
+        .contact-link-item:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .contact-link-icon {
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all var(--transition-smooth);
+        }
+
+        .contact-link-item:hover .contact-link-icon {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.15);
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+        }
+
+        .footer-text a {
+            color: var(--accent);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-text a:hover {
+            color: var(--accent-light);
+        }
+
+        /* ============================================
+           GLOW EFFECTS (Background Blobs)
+           ============================================ */
+        .glow-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-blob-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 153, 0, 0.04);
+            top: 20%;
+            right: -10%;
+        }
+
+        .glow-blob-2 {
+            width: 350px;
+            height: 350px;
+            background: rgba(255, 100, 0, 0.03);
+            bottom: 10%;
+            left: -5%;
+        }
+
+        .glow-blob-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 200, 0, 0.03);
+            top: 50%;
+            left: 30%;
+        }
+
+        /* ============================================
+           MAGNETIC BUTTON EFFECT
+           ============================================ */
+        .magnetic-btn {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ============================================
+           PARTICLE TRAIL
+           ============================================ */
+        .cursor-trail {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1024px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .side-element {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .nav-toggle {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            section {
+                padding: 80px 0;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .certs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+
+            .project-card {
+                transform: none !important;
+            }
+
+            .hero-cta-group {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-outline {
+                justify-content: center;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .cursor-dot, .cursor-ring, .cursor-trail {
+                display: none !important;
+            }
+
+            .contact-links {
+                gap: 1rem;
+            }
+
+            .filter-bar {
+                justify-content: center;
+            }
+
+            .timeline {
+                padding-left: 2rem;
+            }
+
+            .timeline-dot {
+                left: -2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1.2rem;
+            }
+
+            .hero-name {
+                font-size: clamp(2.5rem, 12vw, 4rem);
+            }
+
+            .about-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* ============================================
+           SPECIAL ANIMATIONS
+           ============================================ */
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .gradient-animated {
+            background-size: 200% 200%;
+            animation: gradient-shift 4s ease infinite;
+        }
+
+        /* Typing cursor effect */
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: var(--accent);
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Glitch effect for hero */
+        .glitch-text {
+            position: relative;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff0000;
+            clip-path: inset(0 0 0 0);
+            animation: glitch-1 3s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -2px 0 #0000ff;
+            clip-path: inset(0 0 0 0);
+            animation: glitch-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-1 {
+            0% { clip-path: inset(20% 0 60% 0); }
+            20% { clip-path: inset(60% 0 0% 0); }
+            40% { clip-path: inset(40% 0 40% 0); }
+            60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(10% 0 70% 0); }
+            100% { clip-path: inset(50% 0 30% 0); }
+        }
+
+        @keyframes glitch-2 {
+            0% { clip-path: inset(65% 0 10% 0); }
+            20% { clip-path: inset(10% 0 75% 0); }
+            40% { clip-path: inset(50% 0 20% 0); }
+            60% { clip-path: inset(25% 0 55% 0); }
+            80% { clip-path: inset(70% 0 10% 0); }
+            100% { clip-path: inset(5% 0 85% 0); }
+        }
+
+        /* ============================================
+           TEXT SPLIT ANIMATIONS
+           ============================================ */
+        .split-text .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(40px) rotateX(-40deg);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .split-text.animate .char {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+
+        /* ============================================
+           HOVER LINE DECORATION
+           ============================================ */
+        .hover-line {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hover-line::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform var(--transition-smooth);
+        }
+
+        .hover-line:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* ============================================
+           TERMINAL-STYLE SECTION
+           ============================================ */
+        .terminal-window {
+            background: rgba(10, 10, 18, 0.9);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .terminal-header {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f57; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #28c840; }
+
+        .terminal-title {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-subtle);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.3rem;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s ease;
+        }
+
+        .terminal-line.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .terminal-prompt {
+            color: var(--accent);
+        }
+
+        .terminal-command {
+            color: var(--text-main);
+        }
+
+        .terminal-output {
+            color: var(--text-muted);
+            padding-left: 1rem;
+        }
+
+        .terminal-comment {
+            color: var(--text-subtle);
+        }
+
+        /* ============================================
+           COUNT UP ANIMATION HELPER
+           ============================================ */
+        .count-up {
+            display: inline-block;
+        }
+
+        /* ============================================
+           STATUS INDICATOR
+           ============================================ */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2rem;
+            opacity: 0;
+            animation: heroFadeUp 0.8s ease forwards 2.7s;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28c840;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border: 1px solid rgba(40, 200, 64, 0.4);
+            border-radius: 50%;
+            animation: dotPulse 2s ease infinite;
+        }
+
+        .status-text {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+        }
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>Muqaddam</h1>
-        <p>Cloud & DevOps Enthusiast | AWS Solutions Architect Associate Candidate</p>
-    </header>
-
-    <div class="container">
-        <div class="card">
-            <h2>Pipeline Status</h2>
-            <p>This website was automatically deployed using <strong>Jenkins</strong> and <strong>AWS S3</strong>.</p>
-            <span class="status-tag">● Live on S3</span>
+    <!-- LOADING SCREEN -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader-logo">M.</div>
+        <div class="loader-bar-container">
+            <div class="loader-bar" id="loaderBar"></div>
         </div>
-
-        <div class="card">
-            <h2>About Me</h2>
-            <p>I am a 15-year-old aspiring Cloud Engineer based in Karachi. I specialize in automating infrastructure using <strong>Terraform</strong> and building CI/CD pipelines with <strong>Jenkins</strong>.</p>
-        </div>
-
-        <div class="card">
-            <h2>Active Projects</h2>
-            <ul>
-                <li><strong>Jenkins-to-S3 Pipeline:</strong> Automated deployment of static web content.</li>
-                <li><strong>Terraform 2-Tier Architecture:</strong> VPC, EC2, and RDS automation.</li>
-                <li><strong>Serverless Image Processor:</strong> AWS Lambda & S3 integration.</li>
-            </ul>
-        </div>
+        <div class="loader-percentage" id="loaderPercent">0%</div>
+        <div class="loader-text">Initializing Systems</div>
     </div>
 
-    <footer>
-        &copy; 2026 Muqaddam | Built with Automation
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- SCROLL PROGRESS -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- NOISE OVERLAY -->
+    <div class="noise-overlay"></div>
+
+    <!-- THREE.JS CANVAS -->
+    <div id="canvas-container"></div>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="#hero" class="nav-logo magnetic-btn">Muqaddam.</a>
+            <ul class="nav-links">
+                <li><a href="#about" class="nav-link magnetic-btn" data-index="01.">About</a></li>
+                <li><a href="#experience" class="nav-link magnetic-btn" data-index="02.">Experience</a></li>
+                <li><a href="#projects" class="nav-link magnetic-btn" data-index="03.">Projects</a></li>
+                <li><a href="#certifications" class="nav-link magnetic-btn" data-index="04.">Certs</a></li>
+                <li><a href="#contact" class="nav-link magnetic-btn" data-index="05.">Contact</a></li>
+                <li>
+                    <a href="#contact" class="nav-cta magnetic-btn">
+                        <span>Let's Talk</span>
+                    </a>
+                </li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#about" class="mobile-link" style="transition-delay: 0.1s;">About</a>
+        <a href="#experience" class="mobile-link" style="transition-delay: 0.2s;">Experience</a>
+        <a href="#projects" class="mobile-link" style="transition-delay: 0.3s;">Projects</a>
+        <a href="#certifications" class="mobile-link" style="transition-delay: 0.4s;">Certifications</a>
+        <a href="#contact" class="mobile-link" style="transition-delay: 0.5s;">Contact</a>
+    </div>
+
+    <!-- SIDE ELEMENTS -->
+    <div class="side-element side-left">
+        <a href="https://github.com/muqaddam" target="_blank" aria-label="GitHub">
+            <svg class="side-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+        <a href="https://linkedin.com/in/muqaddam" target="_blank" aria-label="LinkedIn">
+            <svg class="side-icon" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="https://twitter.com/muqaddam" target="_blank" aria-label="Twitter">
+            <svg class="side-icon" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+    </div>
+
+    <div class="side-element side-right">
+        <a href="mailto:muqaddam@example.com" class="side-email">muqaddam@example.com</a>
+    </div>
+
+    <!-- ==========================================
+         MAIN CONTENT
+         ========================================== -->
+    <main class="main-content">
+
+        <!-- HERO SECTION -->
+        <section id="hero">
+            <div class="hero-shapes">
+                <div class="floating-shape"></div>
+                <div class="floating-shape"></div>
+                <div class="floating-shape"></div>
+                <div class="floating-shape"></div>
+                <div class="floating-shape"></div>
+            </div>
+            <div class="glow-blob glow-blob-1"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <p class="hero-greeting">👋 Hi, my name is</p>
+                    <h1 class="hero-name">
+                        <span class="name-text">Muqaddam.</span>
+                    </h1>
+                    <h2 class="hero-tagline">I build infrastructure for the cloud.</h2>
+                    <p class="hero-description">
+                        A <strong style="color: var(--accent);">Cloud & DevOps Engineer</strong> specializing in
+                        architecting scalable, automated, and secure infrastructure on AWS.
+                        I transform complex cloud challenges into elegant, reliable solutions.
+                    </p>
+                    <div class="hero-cta-group">
+                        <a href="#projects" class="btn-primary magnetic-btn">
+                            <span>View My Work</span>
+                            <span class="btn-arrow">→</span>
+                        </a>
+                        <a href="#contact" class="btn-outline magnetic-btn">
+                            <span>Get In Touch</span>
+                            <span class="btn-arrow">→</span>
+                        </a>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Available for new opportunities</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-scroll-indicator">
+                <div class="scroll-mouse"></div>
+                <span class="scroll-text">Scroll</span>
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about">
+            <div class="glow-blob glow-blob-2"></div>
+            <div class="container">
+                <div class="reveal">
+                    <span class="section-label">About Me</span>
+                    <h2 class="section-title">Crafting Cloud <span class="highlight">Architecture</span></h2>
+                    <div class="section-divider"></div>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-text">
+                        <p class="reveal stagger-1">
+                            I'm a passionate Cloud & DevOps Engineer with deep expertise in
+                            <strong>Amazon Web Services (AWS)</strong>. My journey in cloud computing started
+                            with a curiosity about how modern infrastructure scales to serve millions.
+                        </p>
+                        <p class="reveal stagger-2">
+                            Today, I specialize in designing <strong>highly available architectures</strong>,
+                            building <strong>CI/CD pipelines</strong>, and implementing
+                            <strong>Infrastructure as Code</strong> using Terraform. I believe in
+                            automation-first approaches to eliminate toil and increase reliability.
+                        </p>
+                        <p class="reveal stagger-3">
+                            My focus areas include serverless computing, container orchestration,
+                            network design, and security best practices. I'm constantly learning
+                            and pushing the boundaries of what's possible in the cloud.
+                        </p>
+
+                        <!-- Terminal Window -->
+                        <div class="terminal-window reveal stagger-4">
+                            <div class="terminal-header">
+                                <span class="terminal-dot red"></span>
+                                <span class="terminal-dot yellow"></span>
+                                <span class="terminal-dot green"></span>
+                                <span class="terminal-title">muqaddam@cloud:~</span>
+                            </div>
+                            <div class="terminal-body" id="terminalBody">
+                                <div class="terminal-line" data-delay="0">
+                                    <span class="terminal-prompt">$ </span>
+                                    <span class="terminal-command">cat skills.json</span>
+                                </div>
+                                <div class="terminal-line" data-delay="200">
+                                    <span class="terminal-output">{</span>
+                                </div>
+                                <div class="terminal-line" data-delay="400">
+                                    <span class="terminal-output">&nbsp;&nbsp;"cloud": ["AWS", "EC2", "S3", "Lambda"],</span>
+                                </div>
+                                <div class="terminal-line" data-delay="600">
+                                    <span class="terminal-output">&nbsp;&nbsp;"devops": ["Terraform", "Jenkins", "Docker"],</span>
+                                </div>
+                                <div class="terminal-line" data-delay="800">
+                                    <span class="terminal-output">&nbsp;&nbsp;"monitoring": ["CloudWatch", "Prometheus"],</span>
+                                </div>
+                                <div class="terminal-line" data-delay="1000">
+                                    <span class="terminal-output">&nbsp;&nbsp;"status": "Ready to deploy 🚀"</span>
+                                </div>
+                                <div class="terminal-line" data-delay="1200">
+                                    <span class="terminal-output">}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="about-stats reveal stagger-5">
+                            <div class="stat-card">
+                                <div class="stat-number count-up" data-target="10">0</div>
+                                <div class="stat-label">Projects Deployed</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number count-up" data-target="5">0</div>
+                                <div class="stat-label">Certifications</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number count-up" data-target="99">0</div>
+                                <div class="stat-label">Uptime %</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number count-up" data-target="15">0</div>
+                                <div class="stat-label">AWS Services</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skills-visual">
+                        <div class="skill-item reveal stagger-1">
+                            <div class="skill-header">
+                                <span class="skill-name">AWS Cloud Services</span>
+                                <span class="skill-percentage">95%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="95"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item reveal stagger-2">
+                            <div class="skill-header">
+                                <span class="skill-name">Terraform / IaC</span>
+                                <span class="skill-percentage">90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="90"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item reveal stagger-3">
+                            <div class="skill-header">
+                                <span class="skill-name">CI/CD Pipelines</span>
+                                <span class="skill-percentage">88%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="88"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item reveal stagger-4">
+                            <div class="skill-header">
+                                <span class="skill-name">Docker & Containers</span>
+                                <span class="skill-percentage">85%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="85"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item reveal stagger-5">
+                            <div class="skill-header">
+                                <span class="skill-name">Networking & Security</span>
+                                <span class="skill-percentage">87%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="87"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item reveal stagger-6">
+                            <div class="skill-header">
+                                <span class="skill-name">Linux & Scripting</span>
+                                <span class="skill-percentage">92%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="92"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item reveal stagger-6">
+                            <div class="skill-header">
+                                <span class="skill-name">Serverless Architecture</span>
+                                <span class="skill-percentage">83%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" data-width="83"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPERIENCE SECTION -->
+        <section id="experience">
+            <div class="glow-blob glow-blob-3"></div>
+            <div class="container">
+                <div class="reveal">
+                    <span class="section-label">Career Path</span>
+                    <h2 class="section-title">Where I've <span class="highlight">Worked</span></h2>
+                    <div class="section-divider"></div>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item reveal stagger-1">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2024 — Present</div>
+                            <h3 class="timeline-title">Cloud & DevOps Engineer</h3>
+                            <p class="timeline-company">Freelance / Independent</p>
+                            <p class="timeline-desc">
+                                Designing and implementing cloud infrastructure solutions for clients.
+                                Building automated CI/CD pipelines, managing multi-environment deployments,
+                                and architecting highly available systems on AWS.
+                            </p>
+                            <div class="timeline-tags">
+                                <span class="tech-tag">AWS</span>
+                                <span class="tech-tag">Terraform</span>
+                                <span class="tech-tag">Jenkins</span>
+                                <span class="tech-tag">Docker</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item reveal stagger-2">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2023 — 2024</div>
+                            <h3 class="timeline-title">Cloud Infrastructure Intern</h3>
+                            <p class="timeline-company">Cloud Solutions Provider</p>
+                            <p class="timeline-desc">
+                                Gained hands-on experience with AWS services, assisted in migrating
+                                legacy applications to cloud-native architectures, and learned
+                                infrastructure automation best practices.
+                            </p>
+                            <div class="timeline-tags">
+                                <span class="tech-tag">EC2</span>
+                                <span class="tech-tag">VPC</span>
+                                <span class="tech-tag">S3</span>
+                                <span class="tech-tag">CloudFormation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item reveal stagger-3">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2022 — 2023</div>
+                            <h3 class="timeline-title">Self-Directed Learning</h3>
+                            <p class="timeline-company">AWS Cloud Journey</p>
+                            <p class="timeline-desc">
+                                Completed multiple AWS certifications, built personal projects
+                                to solidify cloud concepts, and contributed to open-source
+                                Terraform modules.
+                            </p>
+                            <div class="timeline-tags">
+                                <span class="tech-tag">AWS Certified</span>
+                                <span class="tech-tag">Linux</span>
+                                <span class="tech-tag">Python</span>
+                                <span class="tech-tag">Bash</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOLS MARQUEE SECTION -->
+        <section id="tools" style="padding: 60px 0;">
+            <div class="container">
+                <div class="reveal" style="text-align: center; margin-bottom: 2rem;">
+                    <span class="section-label" style="justify-content: center;">Technologies</span>
+                    <h2 class="section-title">Tools I <span class="highlight">Work With</span></h2>
+                </div>
+            </div>
+            <div class="tools-marquee-wrapper">
+                <div class="tools-marquee" id="marquee1">
+                    <div class="tool-item"><span class="tool-icon">☁️</span><span class="tool-name">AWS</span></div>
+                    <div class="tool-item"><span class="tool-icon">🏗️</span><span class="tool-name">Terraform</span></div>
+                    <div class="tool-item"><span class="tool-icon">🐳</span><span class="tool-name">Docker</span></div>
+                    <div class="tool-item"><span class="tool-icon">⚙️</span><span class="tool-name">Jenkins</span></div>
+                    <div class="tool-item"><span class="tool-icon">🐧</span><span class="tool-name">Linux</span></div>
+                    <div class="tool-item"><span class="tool-icon">🐍</span><span class="tool-name">Python</span></div>
+                    <div class="tool-item"><span class="tool-icon">📊</span><span class="tool-name">CloudWatch</span></div>
+                    <div class="tool-item"><span class="tool-icon">🔒</span><span class="tool-name">IAM</span></div>
+                    <div class="tool-item"><span class="tool-icon">🌐</span><span class="tool-name">CloudFront</span></div>
+                    <div class="tool-item"><span class="tool-icon">⚡</span><span class="tool-name">Lambda</span></div>
+                    <div class="tool-item"><span class="tool-icon">🗄️</span><span class="tool-name">DynamoDB</span></div>
+                    <div class="tool-item"><span class="tool-icon">📦</span><span class="tool-name">S3</span></div>
+                    <div class="tool-item"><span class="tool-icon">🔀</span><span class="tool-name">Git</span></div>
+                    <div class="tool-item"><span class="tool-icon">🖥️</span><span class="tool-name">Bash</span></div>
+                    <!-- Duplicate for seamless scroll -->
+                    <div class="tool-item"><span class="tool-icon">☁️</span><span class="tool-name">AWS</span></div>
+                    <div class="tool-item"><span class="tool-icon">🏗️</span><span class="tool-name">Terraform</span></div>
+                    <div class="tool-item"><span class="tool-icon">🐳</span><span class="tool-name">Docker</span></div>
+                    <div class="tool-item"><span class="tool-icon">⚙️</span><span class="tool-name">Jenkins</span></div>
+                    <div class="tool-item"><span class="tool-icon">🐧</span><span class="tool-name">Linux</span></div>
+                    <div class="tool-item"><span class="tool-icon">🐍</span><span class="tool-name">Python</span></div>
+                    <div class="tool-item"><span class="tool-icon">📊</span><span class="tool-name">CloudWatch</span></div>
+                    <div class="tool-item"><span class="tool-icon">🔒</span><span class="tool-name">IAM</span></div>
+                    <div class="tool-item"><span class="tool-icon">🌐</span><span class="tool-name">CloudFront</span></div>
+                    <div class="tool-item"><span class="tool-icon">⚡</span><span class="tool-name">Lambda</span></div>
+                    <div class="tool-item"><span class="tool-icon">🗄️</span><span class="tool-name">DynamoDB</span></div>
+                    <div class="tool-item"><span class="tool-icon">📦</span><span class="tool-name">S3</span></div>
+                    <div class="tool-item"><span class="tool-icon">🔀</span><span class="tool-name">Git</span></div>
+                    <div class="tool-item"><span class="tool-icon">🖥️</span><span class="tool-name">Bash</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS SECTION -->
+        <section id="projects">
+            <div class="container">
+                <div class="reveal">
+                    <span class="section-label">Portfolio</span>
+                    <h2 class="section-title">Infrastructure <span class="highlight">Portfolio</span></h2>
+                    <div class="section-divider"></div>
+                </div>
+
+                <div class="filter-bar reveal stagger-1">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="web">Web & Architecture</button>
+                    <button class="filter-btn" data-filter="serverless">Serverless</button>
+                    <button class="filter-btn" data-filter="devops">DevOps</button>
+                </div>
+
+                <!-- Web & Architecture -->
+                <h3 class="category-header reveal stagger-2" data-category="web">Web & Architecture</h3>
+                <div class="projects-grid">
+                    <div class="project-card js-tilt reveal stagger-1" data-category="web">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">🏛️</div>
+                            <h3>2-Tier Web Application</h3>
+                            <p>A full-stack setup using Terraform to provision a front-end on EC2 and a back-end RDS database within a Custom VPC with proper security groups and routing.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Terraform</span>
+                                <span class="tech-tag">AWS EC2</span>
+                                <span class="tech-tag">AWS RDS</span>
+                                <span class="tech-tag">VPC</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-2" data-category="web">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">⚖️</div>
+                            <h3>Highly Available Web Architecture</h3>
+                            <p>An implementation using Elastic Load Balancers and Auto Scaling Groups to ensure application resilience, fault tolerance, and intelligent traffic management.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">AWS ELB</span>
+                                <span class="tech-tag">AWS ASG</span>
+                                <span class="tech-tag">High Availability</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-3" data-category="web">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">🌐</div>
+                            <h3>Custom VPC Design</h3>
+                            <p>A networking project focused on designing and implementing multi-AZ public and private subnets, NAT gateways, and route tables for secure resource isolation.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">AWS VPC</span>
+                                <span class="tech-tag">Networking</span>
+                                <span class="tech-tag">Security</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Serverless & Media -->
+                <h3 class="category-header reveal" data-category="serverless">Serverless & Media</h3>
+                <div class="projects-grid">
+                    <div class="project-card js-tilt reveal stagger-1" data-category="serverless">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">🖼️</div>
+                            <h3>Serverless Image Processor</h3>
+                            <p>A workflow using AWS Lambda, S3, and API Gateway. It generates pre-signed URLs for secure uploads which then trigger automated processing functions.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">AWS Lambda</span>
+                                <span class="tech-tag">Amazon S3</span>
+                                <span class="tech-tag">API Gateway</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-2" data-category="serverless">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">🚀</div>
+                            <h3>Global Media Delivery</h3>
+                            <p>A high-performance content delivery system using CloudFront, S3, and Lambda@Edge, incorporating Origin Shield and Origin Groups for optimized global reach.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">CloudFront</span>
+                                <span class="tech-tag">Lambda@Edge</span>
+                                <span class="tech-tag">Origin Shield</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-3" data-category="serverless">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">📋</div>
+                            <h3>Serverless Task Board</h3>
+                            <p>A fully serverless management tool built entirely on AWS services — Lambda, DynamoDB, and API Gateway — ensuring infinite scalability at near-zero cost.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">AWS Serverless</span>
+                                <span class="tech-tag">DynamoDB</span>
+                                <span class="tech-tag">API Gateway</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automation & DevOps -->
+                <h3 class="category-header reveal" data-category="devops">Automation & DevOps</h3>
+                <div class="projects-grid">
+                    <div class="project-card js-tilt reveal stagger-1" data-category="devops">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">🔄</div>
+                            <h3>CI/CD Pipeline Automation</h3>
+                            <p>Automating the full software delivery lifecycle using Jenkins, GitHub webhooks, and AWS developer tools to build, test, and securely deploy artifacts.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Jenkins</span>
+                                <span class="tech-tag">AWS Tools</span>
+                                <span class="tech-tag">GitHub</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-2" data-category="devops">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">🔵</div>
+                            <h3>Blue/Green Deployment</h3>
+                            <p>A deployment strategy using AWS Elastic Beanstalk and Terraform to manage separate blue/green environments for seamless, zero-downtime production updates.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Elastic Beanstalk</span>
+                                <span class="tech-tag">Terraform</span>
+                                <span class="tech-tag">Deployments</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-3" data-category="devops">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">👤</div>
+                            <h3>Automated IAM User Creation</h3>
+                            <p>A Terraform project that automates bulk creation of IAM users, groups, policies, and login profiles by reading data directly from a CSV file source.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Terraform</span>
+                                <span class="tech-tag">AWS IAM</span>
+                                <span class="tech-tag">Automation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card js-tilt reveal stagger-4" data-category="devops">
+                        <a href="#" class="project-link magnetic-btn" aria-label="View project">↗</a>
+                        <div class="card-content">
+                            <div class="project-icon">📄</div>
+                            <h3>Static Website Hosting</h3>
+                            <p>A highly optimized solution for hosting static sites using S3 and CloudFront with custom domain, SSL certificates — fully provisioned through Terraform.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Terraform</span>
+                                <span class="tech-tag">Amazon S3</span>
+                                <span class="tech-tag">CloudFront</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CERTIFICATIONS SECTION -->
+        <section id="certifications">
+            <div class="container">
+                <div class="reveal">
+                    <span class="section-label">Credentials</span>
+                    <h2 class="section-title">Certifications & <span class="highlight">Badges</span></h2>
+                    <div class="section-divider"></div>
+                </div>
+
+                <div class="certs-grid">
+                    <div class="cert-card reveal stagger-1">
+                        <div class="cert-badge">🏅</div>
+                        <h3 class="cert-title">AWS Solutions Architect</h3>
+                        <p class="cert-issuer">Amazon Web Services</p>
+                    </div>
+                    <div class="cert-card reveal stagger-2">
+                        <div class="cert-badge">🏅</div>
+                        <h3 class="cert-title">AWS Cloud Practitioner</h3>
+                        <p class="cert-issuer">Amazon Web Services</p>
+                    </div>
+                    <div class="cert-card reveal stagger-3">
+                        <div class="cert-badge">🏅</div>
+                        <h3 class="cert-title">Terraform Associate</h3>
+                        <p class="cert-issuer">HashiCorp</p>
+                    </div>
+                    <div class="cert-card reveal stagger-4">
+                        <div class="cert-badge">🏅</div>
+                        <h3 class="cert-title">AWS Developer Associate</h3>
+                        <p class="cert-issuer">Amazon Web Services</p>
+                    </div>
+                    <div class="cert-card reveal stagger-5">
+                        <div class="cert-badge">🏅</div>
+                        <h3 class="cert-title">Linux Essentials</h3>
+                        <p class="cert-issuer">LPI</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact">
+            <div class="container">
+                <div class="contact-wrapper">
+                    <div class="reveal">
+                        <span class="section-label" style="justify-content: center;">What's Next?</span>
+                    </div>
+                    <h2 class="contact-title reveal stagger-1">
+                        Let's Build <span class="highlight">Together</span>
+                    </h2>
+                    <p class="contact-description reveal stagger-2">
+                        I'm currently open to new opportunities and collaborations.
+                        Whether you have a cloud architecture challenge, need DevOps expertise,
+                        or just want to say hello — my inbox is always open.
+                    </p>
+                    <div class="reveal stagger-3">
+                        <a href="mailto:muqaddam@example.com" class="contact-btn magnetic-btn">
+                            <span>Say Hello 👋</span>
+                        </a>
+                    </div>
+                    <div class="contact-links reveal stagger-4">
+                        <a href="https://github.com/muqaddam" target="_blank" class="contact-link-item magnetic-btn">
+                            <div class="contact-link-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            </div>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://linkedin.com/in/muqaddam" target="_blank" class="contact-link-item magnetic-btn">
+                            <div class="contact-link-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            </div>
+                            <span>LinkedIn</span>
+                        </a>
+                        <a href="https://twitter.com/muqaddam" target="_blank" class="contact-link-item magnetic-btn">
+                            <div class="contact-link-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                            </div>
+                            <span>Twitter</span>
+                        </a>
+                        <a href="mailto:muqaddam@example.com" class="contact-link-item magnetic-btn">
+                            <div class="contact-link-icon">✉️</div>
+                            <span>Email</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Designed & Built by <a href="#hero" class="hover-line">Muqaddam</a> — © 2025
+            </p>
+        </div>
     </footer>
 
+    <!-- ==========================================
+         JAVASCRIPT — ALL LOGIC
+         ========================================== -->
+    <script>
+    (function() {
+        'use strict';
+
+        /* =========================================
+           0. PERFORMANCE UTILITIES
+           ========================================= */
+        function throttle(fn, wait) {
+            let lastTime = 0;
+            return function(...args) {
+                const now = Date.now();
+                if (now - lastTime >= wait) {
+                    lastTime = now;
+                    fn.apply(this, args);
+                }
+            };
+        }
+
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function lerp(start, end, factor) {
+            return start + (end - start) * factor;
+        }
+
+        /* =========================================
+           1. LOADING SCREEN
+           ========================================= */
+        const loaderWrapper = document.getElementById('loader');
+        const loaderBar = document.getElementById('loaderBar');
+        const loaderPercent = document.getElementById('loaderPercent');
+        let loadProgress = 0;
+        const loadInterval = setInterval(() => {
+            loadProgress += Math.random() * 12 + 3;
+            if (loadProgress > 100) loadProgress = 100;
+            loaderBar.style.width = loadProgress + '%';
+            loaderPercent.textContent = Math.floor(loadProgress) + '%';
+            if (loadProgress >= 100) {
+                clearInterval(loadInterval);
+                setTimeout(() => {
+                    loaderWrapper.classList.add('hidden');
+                    document.body.style.overflow = '';
+                    initAllSystems();
+                }, 600);
+            }
+        }, 80);
+
+        /* =========================================
+           2. THREE.JS 3D PARTICLE NETWORK
+           ========================================= */
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.z = 35;
+
+            const renderer = new THREE.WebGLRenderer({
+                alpha: true,
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // --- Main particles ---
+            const particlesCount = 600;
+            const positions = new Float32Array(particlesCount * 3);
+            const colors = new Float32Array(particlesCount * 3);
+            const sizes = new Float32Array(particlesCount);
+            const velocities = [];
+
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                positions[i3]     = (Math.random() - 0.5) * 120;
+                positions[i3 + 1] = (Math.random() - 0.5) * 120;
+                positions[i3 + 2] = (Math.random() - 0.5) * 80;
+
+                // Mix between orange and gold
+                const mix = Math.random();
+                colors[i3]     = 1.0;
+                colors[i3 + 1] = 0.6 + mix * 0.2;
+                colors[i3 + 2] = mix * 0.3;
+
+                sizes[i] = Math.random() * 2 + 0.5;
+
+                velocities.push({
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.01
+                });
+            }
+
+            const particleGeometry = new THREE.BufferGeometry();
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            // Custom shader material for better-looking particles
+            const particleMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) }
+                },
+                vertexShader: `
+                    attribute float size;
+                    attribute vec3 color;
+                    varying vec3 vColor;
+                    varying float vAlpha;
+                    uniform float uTime;
+                    uniform float uPixelRatio;
+
+                    void main() {
+                        vColor = color;
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                        float dist = length(mvPosition.xyz);
+                        vAlpha = smoothstep(80.0, 10.0, dist) * 0.8;
+                        gl_PointSize = size * uPixelRatio * (30.0 / -mvPosition.z);
+                        gl_PointSize = max(gl_PointSize, 1.0);
+                        gl_Position = projectionMatrix * mvPosition;
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+                    varying float vAlpha;
+
+                    void main() {
+                        float dist = length(gl_PointCoord - vec2(0.5));
+                        if (dist > 0.5) discard;
+                        float alpha = smoothstep(0.5, 0.1, dist) * vAlpha;
+                        gl_FragColor = vec4(vColor, alpha);
+                    }
+                `,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+
+            // --- Connection lines between nearby particles ---
+            const linesMaterial = new THREE.LineBasicMaterial({
+                color: 0xff9900,
+                transparent: true,
+                opacity: 0.06,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const maxConnections = 150;
+            const connectionDistance = 15;
+            let linesGeometry = new THREE.BufferGeometry();
+            const linePositions = new Float32Array(maxConnections * 6);
+            linesGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+            const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+            scene.add(lines);
+
+            // --- Mouse tracking for parallax ---
+            let targetMouseX = 0;
+            let targetMouseY = 0;
+            let currentMouseX = 0;
+            let currentMouseY = 0;
+
+            document.addEventListener('mousemove', throttle((e) => {
+                targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            }, 16));
+
+            // --- Animation loop ---
+            let time = 0;
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.005;
+
+                particleMaterial.uniforms.uTime.value = time;
+
+                // Smooth mouse following
+                currentMouseX = lerp(currentMouseX, targetMouseX, 0.05);
+                currentMouseY = lerp(currentMouseY, targetMouseY, 0.05);
+
+                // Rotate based on mouse
+                particles.rotation.y = currentMouseX * 0.15 + time * 0.08;
+                particles.rotation.x = currentMouseY * 0.1 + time * 0.04;
+
+                // Animate individual particles
+                const pos = particleGeometry.attributes.position.array;
+                for (let i = 0; i < particlesCount; i++) {
+                    const i3 = i * 3;
+                    pos[i3]     += velocities[i].x;
+                    pos[i3 + 1] += velocities[i].y;
+                    pos[i3 + 2] += velocities[i].z;
+
+                    // Boundary wrapping
+                    if (Math.abs(pos[i3]) > 60) velocities[i].x *= -1;
+                    if (Math.abs(pos[i3 + 1]) > 60) velocities[i].y *= -1;
+                    if (Math.abs(pos[i3 + 2]) > 40) velocities[i].z *= -1;
+                }
+                particleGeometry.attributes.position.needsUpdate = true;
+
+                // Update connection lines
+                let lineIndex = 0;
+                const lPos = linesGeometry.attributes.position.array;
+                for (let i = 0; i < particlesCount && lineIndex < maxConnections; i++) {
+                    for (let j = i + 1; j < particlesCount && lineIndex < maxConnections; j++) {
+                        const i3 = i * 3;
+                        const j3 = j * 3;
+                        const dx = pos[i3] - pos[j3];
+                        const dy = pos[i3 + 1] - pos[j3 + 1];
+                        const dz = pos[i3 + 2] - pos[j3 + 2];
+                        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                        if (dist < connectionDistance) {
+                            const li = lineIndex * 6;
+                            lPos[li]     = pos[i3];
+                            lPos[li + 1] = pos[i3 + 1];
+                            lPos[li + 2] = pos[i3 + 2];
+                            lPos[li + 3] = pos[j3];
+                            lPos[li + 4] = pos[j3 + 1];
+                            lPos[li + 5] = pos[j3 + 2];
+                            lineIndex++;
+                        }
+                    }
+                }
+                // Clear remaining line positions
+                for (let i = lineIndex * 6; i < maxConnections * 6; i++) {
+                    lPos[i] = 0;
+                }
+                linesGeometry.attributes.position.needsUpdate = true;
+                linesGeometry.setDrawRange(0, lineIndex * 2);
+
+                lines.rotation.copy(particles.rotation);
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Handle resize
+            window.addEventListener('resize', debounce(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                particleMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+            }, 200));
+        }
+
+        /* =========================================
+           3. CUSTOM CURSOR
+           ========================================= */
+        function initCursor() {
+            if (window.innerWidth <= 768) return;
+
+            const dot = document.getElementById('cursorDot');
+            const ring = document.getElementById('cursorRing');
+
+            let dotX = 0, dotY = 0;
+            let ringX = 0, ringY = 0;
+            let mouseX = 0, mouseY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // Smooth cursor animation
+            function animateCursor() {
+                dotX = lerp(dotX, mouseX, 0.3);
+                dotY = lerp(dotY, mouseY, 0.3);
+                ringX = lerp(ringX, mouseX, 0.12);
+                ringY = lerp(ringY, mouseY, 0.12);
+
+                dot.style.transform = `translate(${dotX - 4}px, ${dotY - 4}px)`;
+                ring.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px)`;
+
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            // Hover states
+            const hoverTargets = document.querySelectorAll(
+                'a, button, .project-card, .cert-card, .stat-card, .tool-item, .filter-btn, .magnetic-btn'
+            );
+
+            hoverTargets.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    dot.classList.add('hovering');
+                    ring.classList.add('hovering');
+                });
+                el.addEventListener('mouseleave', () => {
+                    dot.classList.remove('hovering');
+                    ring.classList.remove('hovering');
+                });
+            });
+
+            // Click animation
+            document.addEventListener('mousedown', () => {
+                dot.classList.add('clicking');
+                ring.classList.add('clicking');
+            });
+            document.addEventListener('mouseup', () => {
+                dot.classList.remove('clicking');
+                ring.classList.remove('clicking');
+            });
+        }
+
+        /* =========================================
+           4. SCROLL PROGRESS BAR
+           ========================================= */
+        function initScrollProgress() {
+            const progressBar = document.getElementById('scrollProgress');
+            window.addEventListener('scroll', throttle(() => {
+                const scrolled = window.scrollY;
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                const percentage = (scrolled / maxScroll) * 100;
+                progressBar.style.width = percentage + '%';
+            }, 16));
+        }
+
+        /* =========================================
+           5. NAVBAR SCROLL EFFECT
+           ========================================= */
+        function initNavbar() {
+            const navbar = document.getElementById('navbar');
+            const navToggle = document.getElementById('navToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+
+            // Scroll effect
+            window.addEventListener('scroll', throttle(() => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }, 100));
+
+            // Mobile toggle
+            navToggle.addEventListener('click', () => {
+                navToggle.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+            });
+
+            // Close mobile menu on link click
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navToggle.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+
+            // Active link highlight on scroll
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', throttle(() => {
+                const scrollPos = window.scrollY + 200;
+                sections.forEach(section => {
+                    const top = section.offsetTop;
+                    const height = section.offsetHeight;
+                    const id = section.getAttribute('id');
+
+                    if (scrollPos >= top && scrollPos < top + height) {
+                        navLinks.forEach(link => {
+                            link.style.color = '';
+                            if (link.getAttribute('href') === '#' + id) {
+                                link.style.color = 'var(--accent)';
+                            }
+                        });
+                    }
+                });
+            }, 100));
+        }
+
+        /* =========================================
+           6. SCROLL REVEAL ANIMATIONS
+           ========================================= */
+        function initScrollReveal() {
+            const reveals = document.querySelectorAll(
+                '.reveal, .reveal-left, .reveal-right, .reveal-scale'
+            );
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            reveals.forEach(el => observer.observe(el));
+        }
+
+        /* =========================================
+           7. 3D CARD TILT EFFECT
+           ========================================= */
+        function initCardTilt() {
+            if (window.innerWidth <= 768) return;
+
+            const cards = document.querySelectorAll('.js-tilt');
+
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+
+                    card.style.transform =
+                        `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                    card.style.boxShadow =
+                        `${-rotateY * 0.5}px ${rotateX * 0.5}px 30px rgba(255, 153, 0, 0.12)`;
+
+                    // Update CSS variable for spotlight effect
+                    const px = ((x / rect.width) * 100);
+                    const py = ((y / rect.height) * 100);
+                    card.style.setProperty('--mouse-x', px + '%');
+                    card.style.setProperty('--mouse-y', py + '%');
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                    card.style.boxShadow = 'none';
+                });
+            });
+        }
+
+        /* =========================================
+           8. MAGNETIC BUTTONS
+           ========================================= */
+        function initMagneticButtons() {
+            if (window.innerWidth <= 768) return;
+
+            const magneticElements = document.querySelectorAll('.magnetic-btn');
+
+            magneticElements.forEach(el => {
+                el.addEventListener('mousemove', (e) => {
+                    const rect = el.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    const strength = 0.3;
+
+                    el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    el.style.transform = 'translate(0, 0)';
+                });
+            });
+        }
+
+        /* =========================================
+           9. COUNT UP ANIMATION
+           ========================================= */
+        function initCountUp() {
+            const counters = document.querySelectorAll('.count-up');
+            let counted = false;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !counted) {
+                        counted = true;
+                        counters.forEach(counter => {
+                            const target = parseInt(counter.getAttribute('data-target'));
+                            const duration = 2000;
+                            const startTime = performance.now();
+
+                            function updateCount(currentTime) {
+                                const elapsed = currentTime - startTime;
+                                const progress = Math.min(elapsed / duration, 1);
+                                // Ease out cubic
+                                const eased = 1 - Math.pow(1 - progress, 3);
+                                const current = Math.floor(eased * target);
+
+                                counter.textContent = current + (target === 99 ? '.' + Math.floor((eased * target % 1) * 10) : '+');
+
+                                if (progress < 1) {
+                                    requestAnimationFrame(updateCount);
+                                } else {
+                                    counter.textContent = target + (target === 99 ? '.9%' : '+');
+                                }
+                            }
+
+                            requestAnimationFrame(updateCount);
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            const statsContainer = document.querySelector('.about-stats');
+            if (statsContainer) observer.observe(statsContainer);
+        }
+
+        /* =========================================
+           10. SKILL BARS ANIMATION
+           ========================================= */
+        function initSkillBars() {
+            const skillFills = document.querySelectorAll('.skill-fill');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const targetWidth = entry.target.getAttribute('data-width');
+                        setTimeout(() => {
+                            entry.target.style.width = targetWidth + '%';
+                        }, 300);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            skillFills.forEach(fill => observer.observe(fill));
+        }
+
+        /* =========================================
+           11. TERMINAL TYPING ANIMATION
+           ========================================= */
+        function initTerminal() {
+            const terminalBody = document.getElementById('terminalBody');
+            if (!terminalBody) return;
+
+            const lines = terminalBody.querySelectorAll('.terminal-line');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        lines.forEach((line, index) => {
+                            const delay = parseInt(line.getAttribute('data-delay')) || index * 200;
+                            setTimeout(() => {
+                                line.classList.add('visible');
+                            }, delay);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            observer.observe(terminalBody);
+        }
+
+        /* =========================================
+           12. PROJECT FILTER
+           ========================================= */
+        function initProjectFilter() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const projectCards = document.querySelectorAll('.project-card');
+            const categoryHeaders = document.querySelectorAll('.category-header');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filter = btn.getAttribute('data-filter');
+
+                    projectCards.forEach(card => {
+                        const category = card.getAttribute('data-category');
+                        if (filter === 'all' || category === filter) {
+                            card.style.display = '';
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 50);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 400);
+                        }
+                    });
+
+                    categoryHeaders.forEach(header => {
+                        const category = header.getAttribute('data-category');
+                        if (filter === 'all' || category === filter) {
+                            header.style.display = '';
+                        } else {
+                            header.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+
+        /* =========================================
+           13. SMOOTH SCROLL FOR ANCHOR LINKS
+           ========================================= */
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        const offsetTop = target.offsetTop - 80;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+
+        /* =========================================
+           14. PARALLAX EFFECTS
+           ========================================= */
+        function initParallax() {
+            const blobs = document.querySelectorAll('.glow-blob');
+            const shapes = document.querySelectorAll('.floating-shape');
+
+            window.addEventListener('scroll', throttle(() => {
+                const scrolled = window.scrollY;
+
+                blobs.forEach((blob, index) => {
+                    const speed = (index + 1) * 0.05;
+                    blob.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+
+                shapes.forEach((shape, index) => {
+                    const speed = (index + 1) * 0.03;
+                    shape.style.transform += ` translateY(${scrolled * speed}px)`;
+                });
+            }, 16));
+        }
+
+        /* =========================================
+           15. CURSOR TRAIL PARTICLES
+           ========================================= */
+        function initCursorTrail() {
+            if (window.innerWidth <= 768) return;
+
+            const trailCount = 8;
+            const trails = [];
+
+            for (let i = 0; i < trailCount; i++) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                trail.style.transition = `opacity ${0.3 + i * 0.05}s ease, transform ${0.1 + i * 0.03}s ease`;
+                document.body.appendChild(trail);
+                trails.push({
+                    el: trail,
+                    x: 0,
+                    y: 0
+                });
+            }
+
+            let mouseX = 0, mouseY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animateTrail() {
+                let prevX = mouseX;
+                let prevY = mouseY;
+
+                trails.forEach((trail, index) => {
+                    const factor = 0.15 - index * 0.012;
+                    trail.x = lerp(trail.x, prevX, factor);
+                    trail.y = lerp(trail.y, prevY, factor);
+
+                    trail.el.style.left = trail.x + 'px';
+                    trail.el.style.top = trail.y + 'px';
+                    trail.el.style.opacity = (1 - index / trailCount) * 0.4;
+                    trail.el.style.width = (4 - index * 0.3) + 'px';
+                    trail.el.style.height = (4 - index * 0.3) + 'px';
+
+                    prevX = trail.x;
+                    prevY = trail.y;
+                });
+
+                requestAnimationFrame(animateTrail);
+            }
+            animateTrail();
+        }
+
+        /* =========================================
+           16. TYPED TEXT EFFECT
+           ========================================= */
+        function initTypedText() {
+            const tagline = document.querySelector('.hero-tagline');
+            if (!tagline) return;
+
+            const texts = [
+                'I build infrastructure for the cloud.',
+                'I automate everything with Terraform.',
+                'I architect scalable AWS solutions.',
+                'I design CI/CD pipelines that ship fast.'
+            ];
+
+            let textIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let typeSpeed = 80;
+
+            function type() {
+                const currentText = texts[textIndex];
+
+                if (!isDeleting) {
+                    tagline.textContent = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+
+                    if (charIndex === currentText.length) {
+                        isDeleting = true;
+                        typeSpeed = 2000; // Pause at end
+                    } else {
+                        typeSpeed = 60 + Math.random() * 40;
+                    }
+                } else {
+                    tagline.textContent = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+
+                    if (charIndex === 0) {
+                        isDeleting = false;
+                        textIndex = (textIndex + 1) % texts.length;
+                        typeSpeed = 400; // Pause before next word
+                    } else {
+                        typeSpeed = 30;
+                    }
+                }
+
+                setTimeout(type, typeSpeed);
+            }
+
+            // Start after hero animations complete
+            setTimeout(type, 4000);
+        }
+
+        /* =========================================
+           17. PAGE VISIBILITY API — Pause when hidden
+           ========================================= */
+        function initVisibilityHandler() {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    document.title = 'Come back! | Muqaddam';
+                } else {
+                    document.title = 'Muqaddam | Cloud & DevOps Engineer';
+                }
+            });
+        }
+
+        /* =========================================
+           18. KEYBOARD NAVIGATION SUPPORT
+           ========================================= */
+        function initKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const navToggle = document.getElementById('navToggle');
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    if (mobileMenu.classList.contains('active')) {
+                        navToggle.classList.remove('active');
+                        mobileMenu.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        }
+
+        /* =========================================
+           19. EASTER EGG — Konami Code
+           ========================================= */
+        function initEasterEgg() {
+            const konamiCode = [
+                'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+                'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+                'b', 'a'
+            ];
+            let konamiIndex = 0;
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === konamiCode[konamiIndex]) {
+                    konamiIndex++;
+                    if (konamiIndex === konamiCode.length) {
+                        konamiIndex = 0;
+                        document.body.style.transition = 'filter 1s ease';
+                        document.body.style.filter = 'hue-rotate(180deg)';
+                        setTimeout(() => {
+                            document.body.style.filter = 'none';
+                        }, 3000);
+                    }
+                } else {
+                    konamiIndex = 0;
+                }
+            });
+        }
+
+        /* =========================================
+           20. SPOTLIGHT EFFECT ON CARDS
+           ========================================= */
+        function initCardSpotlight() {
+            if (window.innerWidth <= 768) return;
+
+            const cards = document.querySelectorAll('.project-card, .cert-card, .stat-card');
+
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    card.style.setProperty('--mouse-x', x + '%');
+                    card.style.setProperty('--mouse-y', y + '%');
+                });
+            });
+        }
+
+        /* =========================================
+           MASTER INIT FUNCTION
+           ========================================= */
+        function initAllSystems() {
+            initThreeJS();
+            initCursor();
+            initScrollProgress();
+            initNavbar();
+            initScrollReveal();
+            initCardTilt();
+            initMagneticButtons();
+            initCountUp();
+            initSkillBars();
+            initTerminal();
+            initProjectFilter();
+            initSmoothScroll();
+            initParallax();
+            initCursorTrail();
+            initTypedText();
+            initVisibilityHandler();
+            initKeyboardNav();
+            initEasterEgg();
+            initCardSpotlight();
+
+            console.log(
+                '%c🚀 Portfolio Initialized Successfully',
+                'color: #ff9900; font-size: 14px; font-weight: bold;'
+            );
+            console.log(
+                '%cDesigned & Built by Muqaddam',
+                'color: #8892b0; font-size: 11px;'
+            );
+        }
+
+    })();
+    </script>
 </body>
 </html>
