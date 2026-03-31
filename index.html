@@ -3,12 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Project</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Muqaddam | Cloud & DevOps Engineer</title>
+    <style>
+        /* Professional CSS Reset & Styling */
+        :root {
+            --primary: #232f3e; /* AWS Dark Blue */
+            --accent: #ff9900;  /* AWS Orange */
+            --text: #333;
+            --light: #f4f4f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 5px solid var(--accent);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .status-tag {
+            background: #d4edda;
+            color: #155724;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        h2 { color: var(--primary); border-left: 4px solid var(--accent); padding-left: 10px; }
+        
+        footer { text-align: center; font-size: 0.9rem; color: #777; margin-top: 3rem; padding-bottom: 2rem; }
+    </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    
-    <script src="app.js"></script>
+
+    <header>
+        <h1>Muqaddam</h1>
+        <p>Cloud & DevOps Enthusiast | AWS Solutions Architect Associate Candidate</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Pipeline Status</h2>
+            <p>This website was automatically deployed using <strong>Jenkins</strong> and <strong>AWS S3</strong>.</p>
+            <span class="status-tag">● Live on S3</span>
+        </div>
+
+        <div class="card">
+            <h2>About Me</h2>
+            <p>I am a 15-year-old aspiring Cloud Engineer based in Karachi. I specialize in automating infrastructure using <strong>Terraform</strong> and building CI/CD pipelines with <strong>Jenkins</strong>.</p>
+        </div>
+
+        <div class="card">
+            <h2>Active Projects</h2>
+            <ul>
+                <li><strong>Jenkins-to-S3 Pipeline:</strong> Automated deployment of static web content.</li>
+                <li><strong>Terraform 2-Tier Architecture:</strong> VPC, EC2, and RDS automation.</li>
+                <li><strong>Serverless Image Processor:</strong> AWS Lambda & S3 integration.</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Muqaddam | Built with Automation
+    </footer>
+
 </body>
 </html>
